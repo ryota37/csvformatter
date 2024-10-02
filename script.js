@@ -36,47 +36,46 @@ function setupColumnSelector(data) {
         columnSelector.appendChild(label);
         columnSelector.appendChild(document.createElement('br'));
 
-        checkbox.addEventListener('change', () => displayTable(data));
+        checkbox.addEventListener('change', () => displayDataAsList(data));
     });
 
-    // 最初のテーブルを表示
-    displayTable(data);
+    // 最初の表示
+    displayDataAsList(data);
 }
 
-function displayTable(data) {
-    const tableContainer = document.getElementById('csvTable');
-    tableContainer.innerHTML = '';  // 古い内容をクリアする
+function displayDataAsList(data) {
+    const dataContainer = document.getElementById('csvDataDisplay');
+    dataContainer.innerHTML = '';  // 古い内容をクリアする
 
     const selectedColumns = Array.from(document.querySelectorAll('#columnSelector input:checked'))
                                  .map(input => input.value);
 
     if (selectedColumns.length === 0) {
-        tableContainer.innerText = 'Please select at least one column';
+        dataContainer.innerText = 'Please select at least one column';
         return;
     }
 
-    const table = document.createElement('table');
-
-    // ヘッダー行を作成
-    const headerRow = document.createElement('tr');
+    // 選択した列ごとにデータを表示
     selectedColumns.forEach(column => {
-        const th = document.createElement('th');
-        th.innerText = column;
-        headerRow.appendChild(th);
-    });
-    table.appendChild(headerRow);
+        const header = document.createElement('h3');
+        header.innerText = column;
+        dataContainer.appendChild(header);
 
-    // データ行を作成
-    data.forEach(row => {
-        const dataRow = document.createElement('tr');
-        selectedColumns.forEach(column => {
-            const td = document.createElement('td');
-            td.innerText = row[column];
-            dataRow.appendChild(td);
+        const list = document.createElement('ul');
+
+        data.forEach((row, index) => {
+            if (index > 0) {  // 2行目以降をリストとして表示
+                const cellValue = row[column];
+                if (cellValue && cellValue.trim() !== '') {  // 空白でないかをチェック
+                    const listItem = document.createElement('li');
+                    listItem.innerText = cellValue;
+                    list.appendChild(listItem);
+                }
+            }
         });
-        table.appendChild(dataRow);
-    });
 
-    // テーブルをコンテナに追加
-    tableContainer.appendChild(table);
+        if (list.childElementCount > 0) {
+            dataContainer.appendChild(list);
+        }
+    });
 }
